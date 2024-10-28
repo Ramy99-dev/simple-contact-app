@@ -392,6 +392,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sms_receiver:
+    dependency: "direct main"
+    description:
+      name: sms_receiver
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.2"
   sms_v2:
     dependency: "direct main"
     description:

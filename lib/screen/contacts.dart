@@ -1,16 +1,23 @@
+import 'dart:convert';
+
 import 'package:contact_app/model/contact.dart';
 import 'package:contact_app/screen/contact.dart';
 import 'package:contact_app/shared/customTextField.dart';
 import 'package:contact_app/util/db.dart';
 import 'package:contact_app/util/storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sms_v2/generated/i18n.dart';
 import 'package:sms_v2/sms.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:sms_receiver/sms_receiver.dart' as inbox;
+
+import '../model/message.dart';
 
 class Contacts extends StatefulWidget {
   const Contacts({super.key});
@@ -21,9 +28,28 @@ class Contacts extends StatefulWidget {
 
 class _ContactsState extends State<Contacts> {
   final TextEditingController _searchCtrl = new TextEditingController();
+  final messageWord = "Hello my freind send me your location";
+  static const eventChannel = EventChannel('app/native-code-event');
+  static const MethodChannel channel = MethodChannel('app/native-code');
+  String _messages = "Listening for messages...";
 
   List<ContactModel> contacts = [];
   List<ContactModel> allContact = [];
+
+  String? _textContent = 'Waiting for messages...';
+  inbox.SmsReceiver? _smsReceiver;
+
+  Future<void> sendSms(String phoneNumber, String message) async {
+    try {
+      final result = await channel.invokeMethod('sendSms', {
+        'phoneNumber': phoneNumber,
+        'message': message,
+      });
+      print(result);
+    } on PlatformException catch (e) {
+      print("Failed to send SMS: '${e.message}'.");
+    }
+  }
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
@@ -82,24 +108,35 @@ class _ContactsState extends State<Contacts> {
     });
   }
 
-  Future<void> sendMessage(String number) async {
+  Future<void> sendLocation(MessageModel message) async {
     var status = await Permission.sms.status;
     dynamic location = await _determinePosition();
-    SmsSender sender = SmsSender();
-    sender
-        .sendSms(SmsMessage(id: 1, address: number, body: location.toString()));
-    // if (!status.isGranted) {
-    //   status = await Permission.sms.request();
-    // }
-    // if (status.isGranted) {
-    // } else {
-    //   print("Permission denied for sending SMS");
-    // }
+
+    sendSms(message.number, location.toString());
+  }
+
+  void _startListeningForMessages() {
+    eventChannel.receiveBroadcastStream().listen(
+      (message) {
+        setState(() {
+          MessageModel data = MessageModel.fromJson(jsonDecode(message));
+          if (data.body == "FindFreind") {
+            sendLocation(data);
+          }
+        });
+      },
+      onError: (error) {
+        print("Error receiving messages: $error");
+      },
+    );
   }
 
   @override
   void initState() {
     super.initState();
+    _startListeningForMessages();
+    // _smsReceiver = inbox.SmsReceiver(onSmsReceived, onTimeout: onTimeout);
+    // _startListening();
     getContacts();
   }
 
@@ -112,7 +149,11 @@ class _ContactsState extends State<Contacts> {
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Icon(Icons.settings),
+            child: InkWell(
+                onTap: () {
+                  Navigator.of(context).pushNamed("/settings");
+                },
+                child: Icon(Icons.settings)),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -128,11 +169,13 @@ class _ContactsState extends State<Contacts> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          ContactModel newContact = await Navigator.of(context)
-              .pushNamed("/addContact") as ContactModel;
-          setState(() {
-            contacts.add(newContact);
-          });
+          ContactModel? newContact = await Navigator.of(context)
+              .pushNamed("/addContact") as ContactModel?;
+          if (newContact != null) {
+            setState(() {
+              contacts.add(newContact);
+            });
+          }
         },
         child: Icon(Icons.add),
       ),
@@ -204,7 +247,7 @@ class _ContactsState extends State<Contacts> {
                                           SizedBox(width: 10),
                                           InkWell(
                                             onTap: () async {
-                                              sendMessage(c.number);
+                                              sendSms(c.number, messageWord);
                                             },
                                             child: Icon(
                                               Icons.message,

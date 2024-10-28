@@ -25,41 +25,60 @@ class _ContactScreenState extends State<ContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.contact.username),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(Icons.settings),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: InkWell(
-              child: Icon(Icons.logout),
-              onTap: () {
-                Storage.deleteStorage("connected");
-                Navigator.of(context).pushNamed("/login");
-              },
+        appBar: AppBar(
+          title: Text(widget.contact.username),
+          centerTitle: true,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(Icons.settings),
             ),
-          )
-        ],
-      ),
-      body: Center(
-        child: Container(
-          color: Color.fromARGB(255, 218, 217, 217),
-          child: Container(
-            padding: EdgeInsets.all(16.0),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              svgCode,
-              Text("ID : ${widget.contact.id.toString()}"),
-              Text("Username : ${widget.contact.username}"),
-              Text("Phone Number :${widget.contact.number}"),
-            ]),
-          ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                child: Icon(Icons.logout),
+                onTap: () {
+                  Storage.deleteStorage("connected");
+                  Navigator.of(context).pushNamed("/login");
+                },
+              ),
+            )
+          ],
         ),
-      ),
-    );
+        body: Container(
+          margin: EdgeInsets.only(left: 30, top: 100, right: 30, bottom: 50),
+          height: double.infinity,
+          width: double.infinity,
+          child: SizedBox(
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    svgCode,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("ID : ${widget.contact.id.toString()}"),
+                        Text("Username : ${widget.contact.username}"),
+                        Text("Phone Number :${widget.contact.number}"),
+                      ],
+                    )
+                  ]),
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
+        ));
   }
 }

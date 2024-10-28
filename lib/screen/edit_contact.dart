@@ -7,14 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
-class AddContact extends StatefulWidget {
-  const AddContact({super.key});
+class EditContact extends StatefulWidget {
+  const EditContact({super.key});
 
   @override
-  State<AddContact> createState() => _AddContactState();
+  State<EditContact> createState() => _EditContactState();
 }
 
-class _AddContactState extends State<AddContact> {
+class _EditContactState extends State<EditContact> {
   final TextEditingController _usernameCtrl = new TextEditingController();
   final TextEditingController _phoneCtrl = new TextEditingController();
 
@@ -25,7 +25,7 @@ class _AddContactState extends State<AddContact> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Contact"),
+        title: Text("Edit Contact"),
         centerTitle: true,
       ),
       body: Center(

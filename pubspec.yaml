@@ -47,6 +47,7 @@ dependencies:
   geolocator: 
   sms_v2: 
   permission_handler: 
+  sms_receiver:
  
 
 dev_dependencies:

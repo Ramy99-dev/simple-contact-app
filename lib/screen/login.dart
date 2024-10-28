@@ -48,7 +48,7 @@ class _LoginState extends State<Login> {
                   Storage.addStorage("connected", val);
                 },
               ),
-              Text("Keep me connected")
+              Text("Remember me")
             ],
           )
         ]),
