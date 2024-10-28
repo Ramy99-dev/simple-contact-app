@@ -44,8 +44,7 @@ dependencies:
   flutter_sms: 
   shared_preferences: 
   random_avatar:
-  geolocator: 
-  sms_v2: 
+  geolocator:  
   permission_handler: 
   sms_receiver:
  

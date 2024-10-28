@@ -9,7 +9,6 @@ import 'package:contact_app/util/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sms_v2/sms.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

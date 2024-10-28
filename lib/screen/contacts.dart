@@ -11,8 +11,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sms_v2/generated/i18n.dart';
-import 'package:sms_v2/sms.dart';
+
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sms_receiver/sms_receiver.dart' as inbox;

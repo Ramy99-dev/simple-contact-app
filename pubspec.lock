@@ -399,13 +399,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.2"
-  sms_v2:
-    dependency: "direct main"
-    description:
-      name: sms_v2
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   source_span:
     dependency: transitive
     description:
