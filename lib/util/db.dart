@@ -19,7 +19,6 @@ Future<Database> initializeDB() async {
 Future<int> insertContact(String name, String phone) async {
   final Database db = await initializeDB();
 
-  
   int id = await db.insert(
     'contacts',
     {'name': name, 'phone': phone},
@@ -54,4 +53,17 @@ Future<void> deleteContact(int id) async {
     where: "id = ?",
     whereArgs: [id],
   );
+}
+
+Future<bool> updateContact(int id, String name, String phone) async {
+  final Database db = await initializeDB();
+
+  int count = await db.update(
+    'contacts',
+    {'name': name, 'phone': phone},
+    where: "id = ?",
+    whereArgs: [id],
+  );
+
+  return count > 0;
 }

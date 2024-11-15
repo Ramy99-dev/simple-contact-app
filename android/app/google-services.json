@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "800241865184",
+    "project_id": "location-app-cda39",
+    "storage_bucket": "location-app-cda39.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800241865184:android:e55fc0a3de9a3e279d9b85",
+        "android_client_info": {
+          "package_name": "com.example.contact_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBgpE_zGePPmAKlSbZyDtJspc3glRqrhI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

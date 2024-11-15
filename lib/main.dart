@@ -3,16 +3,19 @@ import 'package:contact_app/screen/contacts.dart';
 import 'package:contact_app/model/contact.dart';
 import 'package:contact_app/screen/edit_contact.dart';
 import 'package:contact_app/screen/login.dart';
+import 'package:contact_app/screen/map_screen.dart';
 import 'package:contact_app/screen/settings.dart';
+import 'package:contact_app/screen/splash_screen.dart';
 import 'package:contact_app/util/db.dart';
 import 'package:contact_app/util/storage.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Firebase.initializeApp();
   await initializeApp();
 
   runApp(const MyApp());
@@ -42,19 +45,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  dynamic homepage = Login();
-  Future<void> checkConnection() async {
-    String connected = await Storage.getStorage("connected");
-    setState(() {
-      if (connected == "true") {
-        homepage = Contacts();
-      }
-    });
-  }
-
   @override
   void initState() {
-    checkConnection();
     super.initState();
   }
 
@@ -62,13 +54,12 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: homepage,
+        home: SplashScreen(),
         routes: {
           "/addContact": (context) => const AddContact(),
           "/login": (context) => const Login(),
           "/contact": (context) => const Contacts(),
           "/settings": (context) => const Settings(),
-          "/editContact": (context) => const EditContact()
         });
   }
 }

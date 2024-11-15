@@ -25,7 +25,12 @@ class _AddContactState extends State<AddContact> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Contact"),
+        iconTheme: IconThemeData(
+          color: Colors.black,
+        ),
+        title: Text("Add Contact", style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 0.3,
         centerTitle: true,
       ),
       body: Center(

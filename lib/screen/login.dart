@@ -20,7 +20,15 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Contact"),
+        iconTheme: IconThemeData(
+          color: Colors.black,
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.3,
+        title: Text(
+          "Contact",
+          style: TextStyle(color: Colors.black),
+        ),
         centerTitle: true,
       ),
       body: Padding(

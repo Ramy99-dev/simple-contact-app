@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:contact_app/model/contact.dart';
 import 'package:contact_app/screen/contact.dart';
+import 'package:contact_app/screen/map_screen.dart';
 import 'package:contact_app/shared/customTextField.dart';
 import 'package:contact_app/util/db.dart';
 import 'package:contact_app/util/storage.dart';
@@ -15,6 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sms_receiver/sms_receiver.dart' as inbox;
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../model/message.dart';
 
@@ -30,7 +33,14 @@ class _ContactsState extends State<Contacts> {
   final messageWord = "Hello my freind send me your location";
   static const eventChannel = EventChannel('app/native-code-event');
   static const MethodChannel channel = MethodChannel('app/native-code');
-  String _messages = "Listening for messages...";
+  int _selectedIndex = 0;
+  bool showMap = false;
+
+  GlobalKey searchButtonKey = GlobalKey();
+  GlobalKey addButtonKey = GlobalKey();
+  GlobalKey contactsButtonKey = GlobalKey();
+  GlobalKey mapButtonKey = GlobalKey();
+  late TutorialCoachMark tutorialCoachMark;
 
   List<ContactModel> contacts = [];
   List<ContactModel> allContact = [];
@@ -86,8 +96,9 @@ class _ContactsState extends State<Contacts> {
   void searchContact(username) {
     setState(() {
       List<ContactModel> tmpContact = contacts.where((i) {
-        return i.username == username;
+        return i.username.contains(username);
       }).toList();
+      print(tmpContact);
       setState(() {
         if (tmpContact.isNotEmpty) {
           contacts = tmpContact;
@@ -134,16 +145,216 @@ class _ContactsState extends State<Contacts> {
   void initState() {
     super.initState();
     _startListeningForMessages();
+    createTutorial();
+    tutorialCoachMark.show(context: context);
+
     // _smsReceiver = inbox.SmsReceiver(onSmsReceived, onTimeout: onTimeout);
     // _startListening();
     getContacts();
   }
 
+  void createTutorial() {
+    tutorialCoachMark = TutorialCoachMark(
+      targets: _createTargets(),
+      colorShadow: Colors.blue,
+      textSkip: "SKIP",
+      paddingFocus: 10,
+      opacityShadow: 0.5,
+      imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      onFinish: () {
+        print("finish");
+      },
+      onClickTarget: (target) {
+        print('onClickTarget: $target');
+      },
+      onClickTargetWithTapPosition: (target, tapDetails) {
+        print("target: $target");
+        print(
+            "clicked at position local: ${tapDetails.localPosition} - global: ${tapDetails.globalPosition}");
+      },
+      onClickOverlay: (target) {
+        print('onClickOverlay: $target');
+      },
+      onSkip: () {
+        print("skip");
+        return true;
+      },
+    );
+  }
+
+  List<TargetFocus> _createTargets() {
+    List<TargetFocus> targets = [];
+    targets.add(
+      TargetFocus(
+        identify: "addButtonKey",
+        keyTarget: addButtonKey,
+        alignSkip: Alignment.topRight,
+        enableOverlayTab: true,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            builder: (context, controller) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Add button",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    "An Add Button allows users to insert new items or data into a list, form, or application. It triggers an action to include the specified content.",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        identify: "searchButtonKey",
+        keyTarget: searchButtonKey,
+        alignSkip: Alignment.topRight,
+        enableOverlayTab: true,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            builder: (context, controller) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Search button",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    "A Search Button allows users to quickly find relevant information by entering keywords or queries. It triggers the search functionality to deliver results based on the input.",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        identify: "contactsButtonKey",
+        keyTarget: contactsButtonKey,
+        alignSkip: Alignment.topRight,
+        enableOverlayTab: true,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            builder: (context, controller) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Contacts Tab",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    "The Contacts section provides access to a list of saved contacts. It allows users to view, add, edit, or manage contact information efficiently.",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+    targets.add(
+      TargetFocus(
+        identify: "mapButtonKey",
+        keyTarget: mapButtonKey,
+        alignSkip: Alignment.topRight,
+        enableOverlayTab: true,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            builder: (context, controller) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Map Tab",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    "The Map section enables users to explore locations visually. It can display routes, pinpoint specific locations, or provide navigation features.",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    return targets;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+            if (index == 1) {
+              showMap = true;
+            } else {
+              showMap = false;
+            }
+          });
+        },
+        currentIndex: _selectedIndex,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(key: contactsButtonKey, Icons.contacts),
+            label: 'Contacts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(key: mapButtonKey, Icons.map),
+            label: 'Map',
+          ),
+        ],
+      ),
       appBar: AppBar(
-        title: Text("Contact"),
+        backgroundColor: Colors.white,
+        elevation: 0.3,
+        title: Text(
+          "Contact",
+          style: TextStyle(color: Colors.black),
+        ),
         centerTitle: true,
         actions: [
           Padding(
@@ -152,12 +363,18 @@ class _ContactsState extends State<Contacts> {
                 onTap: () {
                   Navigator.of(context).pushNamed("/settings");
                 },
-                child: Icon(Icons.settings)),
+                child: Icon(
+                  Icons.settings,
+                  color: Colors.black,
+                )),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InkWell(
-              child: Icon(Icons.logout),
+              child: Icon(
+                Icons.logout,
+                color: Colors.black,
+              ),
               onTap: () {
                 Storage.deleteStorage("connected");
                 Navigator.of(context).pushNamed("/login");
@@ -166,108 +383,123 @@ class _ContactsState extends State<Contacts> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          ContactModel? newContact = await Navigator.of(context)
-              .pushNamed("/addContact") as ContactModel?;
-          if (newContact != null) {
-            setState(() {
-              contacts.add(newContact);
-            });
-          }
-        },
-        child: Icon(Icons.add),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: customTextField(
-                      "Search Contact", _searchCtrl, null, 1, false),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: InkWell(
-                    child: Icon(Icons.search),
-                    onTap: () {
-                      searchContact(_searchCtrl.text);
-                    },
-                  ),
-                ),
-              ],
+      floatingActionButton: showMap
+          ? null
+          : FloatingActionButton(
+              key: addButtonKey,
+              onPressed: () async {
+                ContactModel? newContact = await Navigator.of(context)
+                    .pushNamed("/addContact") as ContactModel?;
+                if (newContact != null) {
+                  setState(() {
+                    contacts.add(newContact);
+                  });
+                }
+              },
+              child: Icon(Icons.add),
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                children: contacts
-                    .map((c) => Dismissible(
-                          confirmDismiss: (direction) async {
-                            FlutterPhoneDirectCaller.callNumber(c.number);
-                            return false;
-                          },
-                          background: Container(color: Colors.blue),
-                          key: Key(c.id.toString()),
+      body: showMap
+          ? MapScreen()
+          : RefreshIndicator(
+              onRefresh: () async {
+                getContacts();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: customTextField(
+                              "Search Contact", _searchCtrl, null, 1, false),
+                        ),
+                        Expanded(
+                          flex: 1,
                           child: InkWell(
+                            key: searchButtonKey,
+                            child: Icon(Icons.search),
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ContactScreen(contact: c),
-                                ),
-                              );
+                              print("test");
+                              searchContact(_searchCtrl.text);
                             },
-                            child: Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(c.username),
-                                      Row(
-                                        children: [
-                                          InkWell(
-                                            onTap: () {
-                                              _showMyDialog(context, c,
-                                                  deleteContactScreen);
-                                            },
-                                            child: Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          InkWell(
-                                            onTap: () async {
-                                              sendSms(c.number, messageWord);
-                                            },
-                                            child: Icon(
-                                              Icons.message,
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
                           ),
-                        ))
-                    .toList(),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Expanded(
+                      child: ListView(
+                        children: contacts
+                            .map((c) => Dismissible(
+                                  confirmDismiss: (direction) async {
+                                    FlutterPhoneDirectCaller.callNumber(
+                                        c.number);
+                                    return false;
+                                  },
+                                  background: Container(color: Colors.blue),
+                                  key: Key(c.id.toString()),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ContactScreen(contact: c),
+                                        ),
+                                      );
+                                    },
+                                    child: Card(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(c.username),
+                                              Row(
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () {
+                                                      _showMyDialog(context, c,
+                                                          deleteContactScreen);
+                                                    },
+                                                    child: Icon(
+                                                      Icons.delete,
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  InkWell(
+                                                    onTap: () async {
+                                                      sendSms(c.number,
+                                                          messageWord);
+                                                    },
+                                                    child: Icon(
+                                                      Icons.message,
+                                                      color: Colors.blue,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
