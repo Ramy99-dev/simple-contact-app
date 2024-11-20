@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:contact_app/model/contact.dart';
 import 'package:contact_app/screen/contact.dart';
+import 'package:contact_app/screen/map_form.dart';
 import 'package:contact_app/screen/map_screen.dart';
 import 'package:contact_app/shared/customTextField.dart';
 import 'package:contact_app/util/db.dart';
@@ -399,7 +400,7 @@ class _ContactsState extends State<Contacts> {
               child: Icon(Icons.add),
             ),
       body: showMap
-          ? MapScreen()
+          ? MapForm()
           : RefreshIndicator(
               onRefresh: () async {
                 getContacts();

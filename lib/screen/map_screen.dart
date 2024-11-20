@@ -148,7 +148,7 @@ class MapScreenState extends State<MapScreen> {
           markers.add(
             Marker(
               markerId: MarkerId('${user.name} position $i'),
-              icon: user.name == 'stephano'
+              icon: user.name == 'stekphano'
                   ? BitmapDescriptor.defaultMarkerWithHue(
                       BitmapDescriptor.hueRed,
                     )
