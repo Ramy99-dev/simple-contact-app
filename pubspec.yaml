@@ -55,7 +55,7 @@ dependencies:
   cloud_firestore:
   firebase_auth:
   tutorial_coach_mark: 
- 
+  flutter_typeahead: ^3.0.0
 
 dev_dependencies:
   flutter_test:
