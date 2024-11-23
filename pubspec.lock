@@ -167,6 +167,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_animate:
+    dependency: "direct main"
+    description:
+      name: flutter_animate
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.4.1"
   flutter_keyboard_visibility:
     dependency: transitive
     description:
@@ -345,6 +352,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.3"
+  google_fonts:
+    dependency: "direct main"
+    description:
+      name: google_fonts
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.4"
   google_maps:
     dependency: transitive
     description:
@@ -394,6 +408,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.15.3"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.13.5"
   http_parser:
     dependency: transitive
     description:
@@ -464,6 +485,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  path_provider:
+    dependency: transitive
+    description:
+      name: path_provider
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
+  path_provider_android:
+    dependency: transitive
+    description:
+      name: path_provider_android
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
+  path_provider_foundation:
+    dependency: transitive
+    description:
+      name: path_provider_foundation
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.3.0"
   path_provider_linux:
     dependency: transitive
     description:

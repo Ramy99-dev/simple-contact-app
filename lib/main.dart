@@ -4,6 +4,7 @@ import 'package:contact_app/model/contact.dart';
 import 'package:contact_app/screen/edit_contact.dart';
 import 'package:contact_app/screen/login.dart';
 import 'package:contact_app/screen/map_screen.dart';
+import 'package:contact_app/screen/map_users.dart';
 import 'package:contact_app/screen/settings.dart';
 import 'package:contact_app/screen/splash_screen.dart';
 import 'package:contact_app/util/db.dart';

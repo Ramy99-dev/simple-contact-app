@@ -56,6 +56,8 @@ dependencies:
   firebase_auth:
   tutorial_coach_mark: 
   flutter_typeahead: ^3.0.0
+  flutter_animate: ^4.0.1
+  google_fonts:
 
 dev_dependencies:
   flutter_test:

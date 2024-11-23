@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:contact_app/model/location.dart';
 import 'package:contact_app/model/message.dart';
 import 'package:contact_app/model/user.dart';
 import 'package:contact_app/service/firestore_service.dart';
-import 'package:contact_app/service/stream_location_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:random_avatar/random_avatar.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final Location? position;
+  final bool currentLocation;
+  const MapScreen({super.key, this.position, required this.currentLocation});
 
   @override
   State<MapScreen> createState() => MapScreenState();
@@ -25,13 +26,17 @@ class MapScreenState extends State<MapScreen> {
 
   static const eventChannel = EventChannel('app/native-code-event');
   static const MethodChannel channel = MethodChannel('app/native-code');
-  String _messages = "Listening for messages...";
+
+  bool isLoading = true;
+
+  LatLng? returnedLocation;
 
   Position? location;
 
   CameraPosition? _initialPosition;
   Marker? marker;
   Marker? freindMarker;
+  Marker? clickedMarker;
 
   late StreamSubscription<Position>? locationStreamSubscription;
 
@@ -60,45 +65,38 @@ class MapScreenState extends State<MapScreen> {
     return await Geolocator.getCurrentPosition();
   }
 
-  final LocationSettings locationSettings = LocationSettings(
-    accuracy: LocationAccuracy.high,
-  );
-
   @override
   void initState() {
     super.initState();
-    getCurrentLocation();
+
     _startListeningForMessages();
 
-    StreamSubscription<Position> positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position? position) {
-      print("posssssssl : ${position!.latitude}");
+    if (widget.currentLocation == false) {
+      if (!mounted) return;
       setState(() {
+        isLoading = false;
+        _initialPosition = CameraPosition(
+          target: LatLng(widget.position!.lat, widget.position!.lng),
+          zoom: 14.4746,
+        );
         marker = Marker(
           markerId: MarkerId('moving_marker'),
-          position: LatLng(position!.latitude, position!.longitude),
+          position: LatLng(widget.position!.lat, widget.position!.lng),
           infoWindow: InfoWindow(title: 'Initial Position'),
         );
       });
-    });
-
-    // locationStreamSubscription =
-    //     StreamLocationService.onLocationChanged?.listen(
-    //   (position) async {
-    //     print("pos : ${position}");
-    //     await FirestoreService.updateUserLocation(
-    //       'Wy6I0BLMKsJF7D65yeCd',
-    //       LatLng(position.latitude, position.longitude),
-    //     );
-    //   },
-    // );
+    } else {
+      getCurrentLocation();
+    }
   }
 
   getCurrentLocation() async {
     location = await _determinePosition();
 
+    if (!mounted) return;
+
     setState(() {
+      isLoading = false;
       _initialPosition = CameraPosition(
         target: LatLng(location!.latitude, location!.longitude),
         zoom: 14.4746,
@@ -114,15 +112,9 @@ class MapScreenState extends State<MapScreen> {
   void _startListeningForMessages() {
     eventChannel.receiveBroadcastStream().listen(
       (message) {
+        if (!mounted) return; // Check if widget is still in the tree
         setState(() {
           MessageModel data = MessageModel.fromJson(jsonDecode(message));
-
-          // freindMarker = Marker(
-          //   markerId: MarkerId('moving_marker'),
-          //   position: LatLng(position!.latitude, position!.longitude),
-          //   infoWindow: InfoWindow(title: 'Initial Position'),
-          // );
-
           print("MESSAGE: ${data}");
         });
       },
@@ -134,43 +126,56 @@ class MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<AppUser>>(
-      stream: FirestoreService.userCollectionStream(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-        final Set<Marker> markers = {};
-        for (var i = 0; i < snapshot.data!.length; i++) {
-          final user = snapshot.data![i];
-          markers.add(
-            Marker(
-              markerId: MarkerId('${user.name} position $i'),
-              icon: user.name == 'stekphano'
-                  ? BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueRed,
-                    )
-                  : BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueYellow,
-                    ),
-              position: LatLng(user.location.lat, user.location.lng),
-              onTap: () => {},
-            ),
-          );
-        }
-        return location != null
-            ? GoogleMap(
-                initialCameraPosition: _initialPosition!,
-                markers: {marker!},
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
-              )
-            : Text("Loading");
-      },
-    );
+    return WillPopScope(
+        onWillPop: () async {
+          return true; // Return true to allow the screen to close
+        },
+        child: StreamBuilder<List<AppUser>>(
+          stream: FirestoreService.userCollectionStream(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            final Set<Marker> markers = {};
+
+            return isLoading == false
+                ? GoogleMap(
+                    initialCameraPosition: _initialPosition!,
+                    markers: {
+                      marker!,
+                      if (clickedMarker != null) clickedMarker!
+                    }, // Include clicked marker
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller.complete(controller);
+                    },
+                    onTap: widget.currentLocation == false
+                        ? null
+                        : (LatLng tappedPoint) {
+                            // Detect the tap on the map
+                            setState(() {
+                              returnedLocation = tappedPoint;
+                              clickedMarker = Marker(
+                                markerId: MarkerId('clicked_marker'),
+                                position: tappedPoint,
+                                infoWindow: InfoWindow(
+                                  title: 'Clicked Location',
+                                  snippet:
+                                      'Lat: ${tappedPoint.latitude}, Lng: ${tappedPoint.longitude}',
+                                ),
+                              );
+                            });
+
+                            // Send back the location when a user taps the map
+                            Navigator.pop(context, tappedPoint);
+                          },
+                  )
+                : Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+          },
+        ));
   }
 
   @override

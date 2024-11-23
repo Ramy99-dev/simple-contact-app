@@ -13,4 +13,11 @@ class Location {
       lng: data['lng'] as double,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'lat': lat,
+      'lng': lng,
+    };
+  }
 }

@@ -5,6 +5,7 @@ import 'package:contact_app/model/contact.dart';
 import 'package:contact_app/screen/contact.dart';
 import 'package:contact_app/screen/map_form.dart';
 import 'package:contact_app/screen/map_screen.dart';
+import 'package:contact_app/screen/map_users.dart';
 import 'package:contact_app/shared/customTextField.dart';
 import 'package:contact_app/util/db.dart';
 import 'package:contact_app/util/storage.dart';
@@ -400,7 +401,7 @@ class _ContactsState extends State<Contacts> {
               child: Icon(Icons.add),
             ),
       body: showMap
-          ? MapForm()
+          ? MapUsers()
           : RefreshIndicator(
               onRefresh: () async {
                 getContacts();
